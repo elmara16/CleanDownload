@@ -1,5 +1,5 @@
 ##################
-from os import walk
+import os
 from pathlib import Path
 import re
 
@@ -24,19 +24,13 @@ def search(foldername):
     #using Path
     filepath = Path(foldername)
     some = list()
-    # If using OS
-    counter = 0
+    
+    directories = [x[0] for x in os.walk(filepath)]
 
-    for x, y, z in walk(filepath):
-        some.append([x,y,z])
-        #if counter == 1:
-        #    break
-        #counter += 1
-        #if isdir(): #checks if directory
-        #    work_with_dir(x)
-        #elif z.isfile():
-        #   pass #do stuff
-    return some
+    if '24' in directories:
+        print(directories)
+
+    return directories
         
 
 #Búa til fall til þess að lesa metadata út úr hverjum file, nota regex til að gera það
