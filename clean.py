@@ -23,11 +23,10 @@ def work_with_file(filename, dirname, dl_folder):
             lastguy = os.path.split(ble)[-1] #síðasti liðurinn í filename
             #checka hvort hann sé jafn heitinu á file
             if i == lastguy:
-                print(path_to_file)
                 new_filepath = path_to_file
             else:
                 new_filepath = os.path.join(ble, i)
-            #print(new_filepath)
+            print(new_filepath)
                 
         #einhverstaðar hér er kallað á gaurinn sem sér um að taka til og færa file á milli
         #cleanup = move_files(new_filepath, dirname)
@@ -79,21 +78,56 @@ def work_with_dir(dirname, dl_folder):
         return os.path.join(dl_folder, new_dir, season_output)
     else:
         return dirname #ignores file
-    
+
+season1 = re.compile('(S|s)[0-9][0-9]?')
+season2 = re.compile('(S|s)eason [0-9]?[0-9]')
+season3 = re.compile(' [0-9]?[0-9]x[0-9][0-9]')
+season4 = re.compile(' [0-9][0-9][0-9][0-9]? ')
+
+def work_with_shows(folder, files):
+    #print(files)
+    for i in files:
+        filename = i.replace('.', ' ').replace('[', ' ')
+        patt1 = re.search(season1, filename)
+        patt2 = re.search(season2, filename)
+        patt3 = re.search(season3, filename)
+        patt4 = re.search(season4, filename)
+        if patt1:
+            match1 = patt1.group()
+            season = match1.replace(match1, 'Season ')
+            season_output = season + str(int(match1[1:]))
+        elif patt2:
+            match2 = patt2.group()
+            season_output = match2
+        elif patt3:
+            match3 = patt3.group().strip()
+            season = match3.replace(match3, 'Season ')
+            season_output = season + str(int(match3.split('x')[0]))
+        elif patt4:
+            match4 = patt4.group().strip()
+            season = match4.replace(match4, 'Season ')
+            #print('im here')
+            if len(match4) == 4:
+                season_output = season + str(int(match4[0:2]))
+                print(os.path.join(folder, season_output))
+            else:
+                season_output = season + match4[0]
+            
+        else:
+            season_output = 'Unknown'
+        path_to_show = os.path.join(folder, season_output, i)
+        print(path_to_show)    
+        try:
+            os.mkdir(season_output)
+            print('created directory' + season_output)
+        except FileExistsError:
+            print("Directory already exists")
 
 def search(foldername):
-    #using Path til að opna hana
     filepath = Path(foldername)
     some = list()
-    # If using OS
-    #fer í gegnum skránna
     for x, y, z in os.walk(filepath):
-       
-        #works with directory to check if the name
-       # ble = Path(x)
-       # print(ble)
-        #print(work_with_dir(x, filepath))
-        work_with_file(z, x, filepath)
+        work_with_shows(x, z)
     return some
         
 
