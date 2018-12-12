@@ -287,8 +287,6 @@ def work_with_shows(folder, files):
 def search(foldername):
     filepath = Path(foldername)
     some = list()
-<<<<<<< HEAD
-=======
     # If using OS
     #fer í gegnum skránna
 
@@ -297,7 +295,6 @@ def search(foldername):
     #driverFilesOnly(filepath) 
     #sameignafolders(filepath)  
 
->>>>>>> 638b844c731f273598b7e14a23f275b6074635fb
     for x, y, z in os.walk(filepath):
         work_with_shows(x, z)
     return some
