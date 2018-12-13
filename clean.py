@@ -232,13 +232,52 @@ def work_with_shows(folder, files):
             except:
                 pass            
 
+def moveFoldersToSeriesorMovies(filepath):
+    dirname = filepath/'None'
+    goToS = filepath/'Series'
+    goToM = filepath/'Movie'
+    a = os.listdir(dirname)
+    directories = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 2]
+    directories2 = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 3]
+    lis = [os.listdir(x) for x in directories]
+    for x in directories:
+        newdir = x.split('\\')[-1].title().strip()
+        if "Season" in newdir:
+            try:
+                moveFiles(x, goToS)
+            except:
+                pass
+    for z in directories2:
+        newdir = z.split('\\')[-1].title().strip().lower()
+        newdir = re.sub('1080p','', newdir)
+        sendToSeries = re.search('[0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|Series', newdir)
+        if sendToSeries != None:
+            try:
+                moveFiles(z, goToS)
+            except:
+                pass
+        sendToMovie = re.search('[0-9]{4}',newdir)
+        if sendToMovie != None:
+            try:
+                moveFiles(z,goToM)
+            except:
+                pass
+    for z in directories:
+        if not os.listdir(z):
+            print('deleted folder', z)
+            os.rmdir(z)
+            
+
+
 def search(foldername):
     filepath = Path(foldername)
     
-    driverFolders(filepath)
-    driverFilesOnly(filepath) 
-    moveFoldersToTypes(filepath) 
+    #driverFolders(filepath)
+    #driverFilesOnly(filepath) 
+    #moveFoldersToTypes(filepath) 
 
+    #moveFoldersToSeriesorMovies(filepath)
+    moveFilesToSeriesorMovies(filepath)
 
 
 print(search('downloads'))
