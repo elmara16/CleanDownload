@@ -4,6 +4,8 @@ import json
 import re
 from pathlib import Path
 import os
+import shutil
+
 def gettype(title):
     someitle = title.replace(' ', '%20')
     url = 'http://www.omdbapi.com/?apikey=852159f0&t='+someitle
@@ -16,11 +18,12 @@ gettype("Star wars")
 season1 = re.compile('(S|s)[0-9][0-9]?')
 season2 = re.compile('(S|s)eason [0-9]?[0-9]')
 season3 = re.compile(' [0-9]?[0-9]x[0-9][0-9]')
-season4 = re.compile(' [0-9]?[0-9][0-9][0-9] ')
+season4 = re.compile(' [0-9][0-9][0-9][0-9]? ')
 
 def work_with_shows(folder, files):
-    counter = 0
+    #print(files)
     for i in files:
+        current_path = os.path.join(folder, i)
         filename = i.replace('.', ' ').replace('[', ' ')
         patt1 = re.search(season1, filename)
         patt2 = re.search(season2, filename)
@@ -29,31 +32,36 @@ def work_with_shows(folder, files):
         if patt1:
             match1 = patt1.group()
             season = match1.replace(match1, 'Season ')
-            season_output = season + str(int(match1[1:3]))
+            season_output = season + str(int(match1[1:]))
         elif patt2:
             match2 = patt2.group()
             season_output = match2
         elif patt3:
-            match3 = patt3.group()
+            match3 = patt3.group().strip()
             season = match3.replace(match3, 'Season ')
             season_output = season + str(int(match3.split('x')[0]))
         elif patt4:
             match4 = patt4.group().strip()
             season = match4.replace(match4, 'Season ')
-            if len(season) == 4:
+            #print('im here')
+            if len(match4) == 4:
                 season_output = season + str(int(match4[0:2]))
+                print(os.path.join(folder, season_output))
             else:
                 season_output = season + match4[0]
+            
         else:
             season_output = 'Unknown'
-        path_to_show = os.path.join(folder, season_output)
-       # print(path_to_show) 
-        #Hér færa á milli
-        try:
-            os.mkdir(path_to_show)
-            print('created directory' + season_output)
-        except FileExistsError:
-            print("Directory already exists")
+        #To move the files to the correct season
+        path_to_show = os.path.join(folder, season_output, i)
+        new_path = os.path.dirname(path_to_show)
+        print(path_to_show)    
+        if os.path.isdir(new_path):
+            shutil.move(current_path, new_path)
+        else:
+            os.mkdir(new_path)
+            shutil.move(current_path, new_path)
+            
 
 def sort_shows(show_folder):
     shows = Path(show_folder)
