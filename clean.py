@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 from pathlib import Path
 import re
@@ -280,4 +281,6 @@ def search(foldername):
     moveFilesToSeriesorMovies(filepath)
 
 
-print(search('downloads'))
+#Búa til fall til þess að lesa, nota regex til að gera það
+if __name__ == '__main__':
+    main('downloads')
