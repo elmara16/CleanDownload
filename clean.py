@@ -1,4 +1,3 @@
-##################
 import os
 from pathlib import Path
 import re
@@ -17,6 +16,7 @@ def regexclean(line):
     line = line.split('\\')[-1].title().strip()
     line = re.sub(r'\[[^()]*\]', '', line)
     line = re.sub(r'\([^()]*\)', '', line)
+    line = re.sub(r'\{[^()]*\}', '', line)
     line1 = re.search('([^\\\]+)\.(avi|mkv|mpeg|mpg|mov|mp4|)$', line)
     if line1:
         line = line1.group(1)
@@ -35,9 +35,14 @@ def regexclean(line):
         line = line3.group(1)
     # annad rusl
     line = line.strip()
-    line4 = re.search('(.*?)(ch4|╓sl texti|uk$|m4v$| us$| uncut$| ca$|extended|isltexti|cut$|fxg$|us$| ice$|the complete$|torrent$|ísl|®|[\{\(\[]?[0-9]{4}).*', line)
+    line4 = re.search('(.*?)(бsl texti|unrated rerip$|ch4|╓sl texti|uk$|m4v$| us$| uncut$| ca$|extended|isltexti|cut$|fxg$|us$| ice$|the complete$|torrent$|ísl|®|[\{\(\[]?[0-9]{4}).*', line)
     if line4:
         line = line4.group(1)
+    line = line.strip()
+    # meira rusl t.d. nofn a deilendum, leikurum
+    line5 = re.search('(.*?)(robin williams kuth$|axxo$|direcors cut$|el rey de la habana$|[\{\(\[]?[0-9]{4}).*', line)
+    if line5:
+        line = line5.group(1)
     if ';' in line:
         line = line.split(';')
         line = line[1]
@@ -61,7 +66,6 @@ def gettype(title):
         return(json_data['Type'])
     except:
         return("None")
-#gettype("how%20i%20met%20your%20mother")
 
 # Moves folders and files
 def moveFiles(pathTocurrentFile, pathToNewDestination):
@@ -230,19 +234,11 @@ def work_with_shows(folder, files):
 
 def search(foldername):
     filepath = Path(foldername)
-    some = list()
-    # If using OS
-    #fer í gegnum skránna
     
-    #Röðin til að keyra kóðann sem ég var að gera :::
     driverFolders(filepath)
     driverFilesOnly(filepath) 
     moveFoldersToTypes(filepath) 
 
-   # for x, y, z in os.walk(filepath):
-   #     work_with_shows(x, z)
-    return some
 
-#Búa til fall til þess að lesa, nota regex til að gera það
 
 print(search('downloads'))
