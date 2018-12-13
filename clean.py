@@ -12,7 +12,6 @@ from os import listdir
 from os.path import isfile, join
 
 
-
 #Tætar í sig files og folders
 def regexclean(line):
     line = line.split('\\')[-1].title().strip()
@@ -54,6 +53,7 @@ def regexclean(line):
     return line
     
 def gettype(title):
+    title = title.replace(' ', '%20')
     try:
         url = 'http://www.omdbapi.com/?apikey=852159f0&t='+title
         ble = urlopen(url)
@@ -87,7 +87,7 @@ def driverFolders(filepath):
             count += 1
             if count == count2:
                 done = True
-        Rex = regexclean(x)
+        Rex = regexclean(x).title()
         dirName = filepath/Rex
 
         if not os.path.exists(dirName):
@@ -122,7 +122,7 @@ def driverFilesOnly(filepath):
             count += 1
             if count == count2:
                 done = True
-        Rex = regexclean(x)
+        Rex = regexclean(x).title()
         dirName = filepath/Rex
         dirFile = "downloads\\" + x
 
@@ -151,8 +151,8 @@ def moveFoldersToTypes(filepath):
             if count == count2:
                 done = True
         Rex = x.replace('downloads\\','')
-        if 'season' not in Rex or 'Season' not in Rex:
-            seriesOrMovies = gettype(Rex)
+        if 'season' not in Rex and 'Season' not in Rex:
+            seriesOrMovies = gettype(Rex).title()
         else:
             seriesOrMovies = 'None'
         if not os.path.exists(filepath/seriesOrMovies):
@@ -161,9 +161,9 @@ def moveFoldersToTypes(filepath):
         else:    
             print("Directory " , seriesOrMovies ,  " already exists")
         try:
-            if seriesOrMovies == 'series':
+            if seriesOrMovies == 'Series':
                 moveFiles(x, filepath/seriesOrMovies)
-            elif seriesOrMovies == 'movie':
+            elif seriesOrMovies == 'Movie':
                 moveFiles(x, filepath/seriesOrMovies)
             elif seriesOrMovies == 'None':
                 moveFiles(x, filepath/seriesOrMovies)
@@ -214,7 +214,7 @@ def work_with_shows(folder, files):
         print(path_to_show)    
         if os.path.isdir(new_path):
             try:
-                shutil.move(current_path, new_path)
+                moveFiles(current_path, new_path)
             except:
                 pass
         else:
@@ -229,7 +229,7 @@ def search(foldername):
     some = list()
     # If using OS
     #fer í gegnum skránna
-
+    
     #Röðin til að keyra kóðann sem ég var að gera :::
     driverFolders(filepath)
     driverFilesOnly(filepath) 
@@ -237,8 +237,7 @@ def search(foldername):
 
    # for x, y, z in os.walk(filepath):
    #     work_with_shows(x, z)
-   # return some
-        
+    return some
 
 #Búa til fall til þess að lesa, nota regex til að gera það
 
