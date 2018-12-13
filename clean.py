@@ -31,17 +31,22 @@ def regexclean(line):
         line = line3.group(1)
     line = line.strip()
     # remove season
-    line4 = re.search('(.*?)([a-z],|[0-9] sería|seria [0-9]|[0-9]{3}|s[0-9]|e[0-9]|[0-9],|[0-9]{2}x[0-9]{2}|[0-9]-[0-9]|s[0-9]{2}|seasons|season|s[0-9]{2}[e][0-9]{2}|[\{\(\[]?[0-9]{4}).*', line)
-    if line4:
-        line = line4.group(1)
+    line3 = re.search('(.*?)([0-9]x[0-9]{2}|[a-z],|[0-9] +sería|seria [0-9]|[0-9]{3}|s[0-9]|e[0-9]|[0-9],|[0-9]{2}x[0-9]{2}|[0-9]-[0-9]|s[0-9]{2}|seasons|season|s[0-9]{2}[e][0-9]{2}|[\{\(\[]?[0-9]{4}).*', line)
+    if line3:
+        line = line3.group(1)
     # annad rusl
-    line4 = re.search('(.*?)(ice$|the complete$|torrent$|uk$|us$|ísl|®|[\{\(\[]?[0-9]{4}).*', line)
+    line = line.strip()
+    line4 = re.search('(.*?)(ch4|╓sl texti|uk$|m4v$| us$| uncut$| ca$|extended|isltexti|cut$|fxg$|us$| ice$|the complete$|torrent$|ísl|®|[\{\(\[]?[0-9]{4}).*', line)
     if line4:
         line = line4.group(1)
+    if ';' in line:
+        line = line.split(';')
+        line = line[1]
+        line = "".join(line)
     line = re.sub(r'^s[0-9]{2}e[0-9]{2}', '',line)
     line = line.replace('-', ' ')
-    line = line.replace("'", '')
-    line = line.replace("_", '')
+    line = re.sub("' ", '',line)
+    line = line.replace("_", ' ')
     line = line.replace("", '')
     line = re.sub(r'\([^()]*\)', '', line)
     line = re.sub(' +',' ',line)
@@ -132,41 +137,40 @@ def driverFilesOnly(filepath):
         except:
             pass
 
-#setja folder sem meika ekki sense fyrir movies eda series i aðra folders ef hægt er
-def sameignafolders(filepath):
+def moveFoldersToTypes(filepath):
     count = 0
     count2 = 0
     done = False
     directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == 1]
     count2 = directories.count(directories[-1])
     licycle = cycle(directories)
-    needUpdate = False
-    y = next(licycle)
     while(done == False):
-        if needUpdate == True:
-            directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == 1]
-            count2 = directories.count(directories[-1])
-            licycle = cycle(directories)
-            needUpdate = False
-        x, y = y, next(licycle)
+        x = next(licycle)
         if x == directories[-1]:
             count += 1
             if count == count2:
                 done = True
         Rex = x.replace('downloads\\','')
-        Rey = y.replace('downloads\\','')
-        newPathyTox = filepath/Rex
-        try:  
-            samaheiti = re.match(Rex,Rey)
-            if samaheiti != None:
-                moveFiles(y,newPathyTox)
-                print("Moved ", y)
-                needUpdate = True
+        if 'season' not in Rex or 'Season' not in Rex:
+            seriesOrMovies = gettype(Rex)
+        else:
+            seriesOrMovies = 'None'
+        if not os.path.exists(filepath/seriesOrMovies):
+            Path.mkdir(filepath/seriesOrMovies)
+            print("Directory " , seriesOrMovies ,  " Created ")
+        else:    
+            print("Directory " , seriesOrMovies ,  " already exists")
+        try:
+            if seriesOrMovies == 'series':
+                moveFiles(x, filepath/seriesOrMovies)
+            elif seriesOrMovies == 'movie':
+                moveFiles(x, filepath/seriesOrMovies)
+            elif seriesOrMovies == 'None':
+                moveFiles(x, filepath/seriesOrMovies)
+            else:
+                pass
         except:
             pass
-
-
-
 
 season1 = re.compile('(S|s)[0-9][0-9]?')
 season2 = re.compile('(S|s)eason [0-9]?[0-9]')
@@ -229,11 +233,11 @@ def search(foldername):
     #Röðin til að keyra kóðann sem ég var að gera :::
     driverFolders(filepath)
     driverFilesOnly(filepath) 
-    #sameignafolders(filepath)  
+    moveFoldersToTypes(filepath) 
 
-    for x, y, z in os.walk(filepath):
-        work_with_shows(x, z)
-    return some
+   # for x, y, z in os.walk(filepath):
+   #     work_with_shows(x, z)
+   # return some
         
 
 #Búa til fall til þess að lesa, nota regex til að gera það
