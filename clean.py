@@ -1,4 +1,4 @@
-##################
+#!/usr/bin/env python
 import os
 from pathlib import Path
 import re
@@ -228,9 +228,8 @@ def work_with_shows(folder, files):
             except:
                 pass            
 
-def search(foldername):
+def main(foldername):
     filepath = Path(foldername)
-    some = list()
     # If using OS
     #fer í gegnum skránna
     
@@ -241,8 +240,8 @@ def search(foldername):
 
    # for x, y, z in os.walk(filepath):
    #     work_with_shows(x, z)
-    return some
+
 
 #Búa til fall til þess að lesa, nota regex til að gera það
-
-print(search('downloads'))
+if __name__ == '__main__':
+    main('downloads')
