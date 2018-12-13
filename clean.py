@@ -155,22 +155,26 @@ def moveFoldersToTypes(filepath):
             seriesOrMovies = gettype(Rex).title()
         else:
             seriesOrMovies = 'None'
-        if not os.path.exists(filepath/seriesOrMovies):
-            Path.mkdir(filepath/seriesOrMovies)
-            print("Directory " , seriesOrMovies ,  " Created ")
-        else:    
-            print("Directory " , seriesOrMovies ,  " already exists")
-        try:
-            if seriesOrMovies == 'Series':
-                moveFiles(x, filepath/seriesOrMovies)
-            elif seriesOrMovies == 'Movie':
-                moveFiles(x, filepath/seriesOrMovies)
-            elif seriesOrMovies == 'None':
-                moveFiles(x, filepath/seriesOrMovies)
-            else:
+        if Rex.title() != 'Series' and Rex.title() != 'Movie' and Rex.title() !='None':
+            if not os.path.exists(filepath/seriesOrMovies):
+                Path.mkdir(filepath/seriesOrMovies)
+                print("Directory " , seriesOrMovies ,  " Created ")
+            else:    
+                print("Directory " , seriesOrMovies ,  " already exists")
+            try:
+                if seriesOrMovies == 'Series':
+                    moveFiles(x, filepath/seriesOrMovies)
+                    print('Move', x)
+                elif seriesOrMovies == 'Movie':
+                    moveFiles(x, filepath/seriesOrMovies)
+                    print('Move', x)
+                elif seriesOrMovies == 'None':
+                    moveFiles(x, filepath/seriesOrMovies)
+                    print('Move', x)
+                else:
+                    pass
+            except:
                 pass
-        except:
-            pass
 
 season1 = re.compile('(S|s)[0-9][0-9]?')
 season2 = re.compile('(S|s)eason [0-9]?[0-9]')
