@@ -191,7 +191,7 @@ def moveFoldersToTypes(filepath):
             except:
                 pass
 
-season1 = re.compile('(S|s)[0-9][0-9]')
+season1 = re.compile('(S|s)[0-9][0-9]?')
 season2 = re.compile('(S|s)eason [0-9]?[0-9]')
 season3 = re.compile(' ?[0-9]?[0-9]x[0-9][0-9]')
 season4 = re.compile(' ?[0-9]?[0-9] ?[0-9][0-9] ')
@@ -228,10 +228,10 @@ def work_with_shows(folder, files):
             
         else:
             season_output = 'Unknown'
+        #Create a new path to the show
         path_to_show = folder/season_output/i
         new_path = os.path.dirname(path_to_show)
-        print(path_to_show, new_path)
-       # print(path_to_show)    
+       # if there isn't a directory called season X create it before moving the files to it    
         if os.path.isdir(new_path):
             try:
                 moveFiles(current_path, path_to_show)
@@ -251,19 +251,21 @@ def sort_shows(show_folder):
         #ignore if the filename is season something
         if re.fullmatch(r'^Season [1-9]?[0-9]$', path_x.name): #skip already sorted shows
             continue
-        elif path_x.parent == shows: #ignore the very first folder
-            work_with_shows(path_x, z)
-            print("sorted " + x)
+        elif path_x.parent != shows: #ignore the very first folder
+            clean_out_of_subdirs(path_x, z, path_x.parent)#
+            continue
             
         else:
             #Go through all the subdirectories if their name isn't season something and put it in the main folder
-            clean_out_of_subdirs(path_x, z, path_x.parent)
-    #empty_files = listdir(show_folder)        
-    #for i in empty_files:
-    #    try:
-    #        shutil.rmtree(i)
-    #    except:
-    #        pass     
+            work_with_shows(path_x, z)
+    #for x, y, z in os.walk(shows):
+    #    work_with_shows(Path(x), z)
+    empty_files = listdir(show_folder)        
+    for i in empty_files:
+        try:
+            shutil.rmtree(i)
+        except:
+            pass     
 
 #moves files from sub folder to the main folder
 def clean_out_of_subdirs(dirname, files, show_folder):
@@ -279,17 +281,15 @@ def moveFoldersToSeriesorMovies(filepath):
     goToM = filepath/'Movie'
     directories = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 2]
     directories2 = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 3]
-    #for x in directories:
-    print(dirname)
-    for x in listdir(dirname):
+    for x in listdir(filepath):
         newdir = Path(x).name.title().strip()
         match = re.match("Season [0-9]?[0-9]", newdir)
         if match:
             matc = match.group()
-            path = Path(dirname)/matc
+            path = Path(filepath)/matc
             files = listdir(path)
             #print(files)
-            clean_out_of_subdirs(path, files, dirname)
+            clean_out_of_subdirs(path, files, filepath)
     for z in directories2:
         newdir = z.title().strip()
         newdir = re.sub('1080p','', newdir)
@@ -359,14 +359,17 @@ def restOfFilesToNone(filepath):
 def main(foldername):
     filepath = Path(foldername)
     driverFolders(filepath,1)
-    driverFilesOnly(filepath, '') 
+    driverFilesOnly(filepath, '')
     moveFoldersToTypes(filepath) 
     moveFoldersToSeriesorMovies(filepath)
+    moveFilesToSeriesorMovies(filepath)
     
-    #driverFolders(filepath/'Series',2)
-    #driverFilesOnly(filepath/'Series', 'Series\\')
-    #driverFolders(filepath/'Movie',2)
-    #driverFilesOnly(filepath/'Movie', 'Movie\\')
+    
+    
+    driverFolders(filepath/'Series',2)
+    driverFilesOnly(filepath/'Series', 'Series\\')
+    driverFolders(filepath/'Movie',2)
+    driverFilesOnly(filepath/'Movie', 'Movie\\')
     #sort_shows('downloads/Series')
     restOfFilesToNone(filepath)
 
