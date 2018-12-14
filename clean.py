@@ -344,6 +344,17 @@ def remove_empyfiles(directories):
         if not os.listdir(z):
             print('deleted folder', z)
             os.rmdir(z)   
+            
+def restOfFilesToNone(filepath):
+    a = os.listdir(filepath)
+    newDirName = filepath/'None'
+    for x in a:
+        m = 'downloads//' + x
+        if x != 'Movie' and x != 'Series' and x != 'None':
+            try:
+                moveFiles(m, newDirName)
+            except:
+                pass
 
 def main(foldername):
     filepath = Path(foldername)
@@ -351,12 +362,13 @@ def main(foldername):
     driverFilesOnly(filepath, '') 
     moveFoldersToTypes(filepath) 
     moveFoldersToSeriesorMovies(filepath)
-    moveFilesToSeriesorMovies(filepath)
-    driverFolders(filepath/'Series',2)
-    driverFilesOnly(filepath/'Series', 'Series\\')
-    driverFolders(filepath/'Movie',2)
-    driverFilesOnly(filepath/'Movie', 'Movie\\')
+    
+    #driverFolders(filepath/'Series',2)
+    #driverFilesOnly(filepath/'Series', 'Series\\')
+    #driverFolders(filepath/'Movie',2)
+    #driverFilesOnly(filepath/'Movie', 'Movie\\')
     #sort_shows('downloads/Series')
+    restOfFilesToNone(filepath)
 
 if __name__ == '__main__':
     main('downloads')
