@@ -198,8 +198,9 @@ season4 = re.compile(' ?[0-9]?[0-9] ?[0-9][0-9] ')
 
 def work_with_shows(folder, files):
     #print(files)
-    for i in files:
+    for i in files:        
         current_path = folder/i
+
         filename = i.replace('.', ' ').replace('[', ' ')
         patt1 = re.search(season1, filename)
         patt2 = re.search(season2, filename)
@@ -232,7 +233,7 @@ def work_with_shows(folder, files):
         path_to_show = folder/season_output/i
         new_path = os.path.dirname(path_to_show)
        # if there isn't a directory called season X create it before moving the files to it    
-        if os.path.isdir(new_path):
+        if Path(new_path).is_dir():
             try:
                 moveFiles(current_path, path_to_show)
             except:
@@ -240,38 +241,35 @@ def work_with_shows(folder, files):
         else:
             try:
                 os.mkdir(new_path)
-                shutil.move(current_path, path_to_show)
+                moveFiles(current_path, path_to_show)
             except:
                 pass            
 
 def sort_shows(show_folder):
     shows = Path(show_folder)
-    for x, y, z in os.walk(shows, topdown=False):
-        path_x = Path(x)
-        #ignore if the filename is season something
-        if re.fullmatch(r'^Season [1-9]?[0-9]$', path_x.name): #skip already sorted shows
-            continue
-        elif path_x.parent != shows: #ignore the very first folder
-            clean_out_of_subdirs(path_x, z, path_x.parent)#
-            continue
-            
-        else:
-            #Go through all the subdirectories if their name isn't season something and put it in the main folder
-            work_with_shows(path_x, z)
-    #for x, y, z in os.walk(shows):
-    #    work_with_shows(Path(x), z)
-    empty_files = listdir(show_folder)        
-    for i in empty_files:
-        try:
-            shutil.rmtree(i)
-        except:
-            pass     
+    for i in listdir(shows):
+        path = shows/i
+        for x, y, z in os.walk(path):
+            path_x = Path(x)
+            #ignore if the filename is season something
+            if re.fullmatch(r'^Season [1-9]?[0-9]$', path_x.name): #skip already sorted shows
+                continue
+            elif path_x.parent == shows: #ignore the very first folder
+                continue
+            else:
+                clean_out_of_subdirs(path_x, z, path) #removes everything from subdirs
+    
+        
+        files = listdir(path)
+        print(files)
+        work_with_shows(path, files)
+        
 
 #moves files from sub folder to the main folder
 def clean_out_of_subdirs(dirname, files, show_folder):
     for f in files:
         old_path = dirname/f
-        new_path = Path(show_folder)/f
+        new_path = show_folder/f
         moveFiles(old_path, new_path)
 
 
@@ -370,7 +368,7 @@ def main(foldername):
     driverFilesOnly(filepath/'Series', 'Series\\')
     driverFolders(filepath/'Movie',2)
     driverFilesOnly(filepath/'Movie', 'Movie\\')
-    #sort_shows('downloads/Series')
+    sort_shows('downloads/Series')
     restOfFilesToNone(filepath)
 
 if __name__ == '__main__':
