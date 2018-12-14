@@ -237,10 +237,8 @@ def moveFoldersToSeriesorMovies(filepath):
     dirname = filepath/'None'
     goToS = filepath/'Series'
     goToM = filepath/'Movie'
-    a = os.listdir(dirname)
     directories = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 2]
     directories2 = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 3]
-    lis = [os.listdir(x) for x in directories]
     for x in directories:
         newdir = x.split('\\')[-1].title().strip()
         if "Season" in newdir:
@@ -251,7 +249,7 @@ def moveFoldersToSeriesorMovies(filepath):
     for z in directories2:
         newdir = z.split('\\')[-1].title().strip().lower()
         newdir = re.sub('1080p','', newdir)
-        sendToSeries = re.search('[0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|Series', newdir)
+        sendToSeries = re.search('[0-9][0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|Series', newdir)
         if sendToSeries != None:
             try:
                 moveFiles(z, goToS)
@@ -263,24 +261,58 @@ def moveFoldersToSeriesorMovies(filepath):
                 moveFiles(z,goToM)
             except:
                 pass
+    directories = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 2]
+    remove_empyfiles(directories)
+            
+def moveFilesToSeriesorMovies(filepath):
+    dirname = filepath/'None'
+    goToS = filepath/'Series'
+    goToM = filepath/'Movie'
+    directories2 = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 2]
+  
+    for x in directories2:
+        a = os.listdir(x)
+        for y in a:
+            dirname = x +'\\'+ y
+            y = re.sub('1080p','', y).lower()
+            m = y.replace('.', ' ')
+            m = m.replace('-', ' ' )
+            m = m.replace('_', ' ')
+            m = [int(s) for s in m.split() if s.isdigit()]
+            m = [g for g in m if len(str(g)) > 4]
+            sendToSeries = re.search('e[0-9]{2}|[0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|Series', y)
+            if sendToSeries != None:
+                try:
+                    moveFiles(dirname, goToS)
+                except:
+                    pass
+            if len(m) == 0:
+                sendToMovie = re.search('[0-9]{4}',y)
+                if sendToMovie != None:
+                    try:
+                        moveFiles(dirname,goToM)
+                    except:
+                        pass
+    remove_empyfiles(directories2)  
+    
+def remove_empyfiles(directories):
     for z in directories:
         if not os.listdir(z):
             print('deleted folder', z)
-            os.rmdir(z)
-            
+            os.rmdir(z)   
 
 
 def search(foldername):
     filepath = Path(foldername)
     
-    #driverFolders(filepath)
-    #driverFilesOnly(filepath) 
-    #moveFoldersToTypes(filepath) 
-
-    #moveFoldersToSeriesorMovies(filepath)
+    driverFolders(filepath)
+    driverFilesOnly(filepath) 
+    moveFoldersToTypes(filepath) 
+    moveFoldersToSeriesorMovies(filepath)
     moveFilesToSeriesorMovies(filepath)
 
 
+print(search('downloads'))
 #Búa til fall til þess að lesa, nota regex til að gera það
-if __name__ == '__main__':
-    main('downloads')
+#if __name__ == '__main__':
+#    main('downloads')
