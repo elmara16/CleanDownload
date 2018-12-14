@@ -248,8 +248,13 @@ def sort_shows(show_folder):
             
         else:
             #Go through all the subdirectories if their name isn't season something and put it in the main folder
-            clean_out_of_subdirs(path_x, z, path_x.parent)        
-    #remove_empyfiles(show_folder)        
+            clean_out_of_subdirs(path_x, z, path_x.parent)
+    #empty_files = listdir(show_folder)        
+    #for i in empty_files:
+    #    try:
+    #        shutil.rmtree(i)
+    #    except:
+    #        pass     
 
 #moves files from sub folder to the main folder
 def clean_out_of_subdirs(dirname, files, show_folder):
@@ -265,15 +270,19 @@ def moveFoldersToSeriesorMovies(filepath):
     goToM = filepath/'Movie'
     directories = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 2]
     directories2 = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 3]
-    for x in directories:
-        newdir = x.split('\\')[-1].title().strip()
-        if "Season" in newdir:
-            try:
-                moveFiles(x, goToS)
-            except:
-                pass
+    #for x in directories:
+    print(dirname)
+    for x in listdir(dirname):
+        newdir = Path(x).name.title().strip()
+        match = re.match("Season [0-9]?[0-9]", newdir)
+        if match:
+            matc = match.group()
+            path = Path(dirname)/matc
+            files = listdir(path)
+            #print(files)
+            clean_out_of_subdirs(path, files, dirname)
     for z in directories2:
-        newdir = z.split('\\')[-1].title().strip().lower()
+        newdir = z.title().strip()
         newdir = re.sub('1080p','', newdir)
         sendToSeries = re.search('[0-9][0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|series', newdir)
         if sendToSeries != None:
@@ -329,15 +338,15 @@ def remove_empyfiles(directories):
 
 def main(foldername):
     filepath = Path(foldername)
-    driverFolders(filepath,1)
-    driverFilesOnly(filepath, '') 
+    #driverFolders(filepath,1)
+    #driverFilesOnly(filepath, '') 
     moveFoldersToTypes(filepath) 
     moveFoldersToSeriesorMovies(filepath)
-    moveFilesToSeriesorMovies(filepath)
-    driverFolders(filepath/'Series',2)
-    driverFilesOnly(filepath/'Series', 'Series\\')
-    driverFolders(filepath/'Movie',2)
-    driverFilesOnly(filepath/'Movie', 'Movie\\')
+    #moveFilesToSeriesorMovies(filepath)
+    #driverFolders(filepath/'Series',2)
+    #driverFilesOnly(filepath/'Series', 'Series\\')
+    #driverFolders(filepath/'Movie',2)
+    #driverFilesOnly(filepath/'Movie', 'Movie\\')
     #sort_shows('downloads/Series')
 
 if __name__ == '__main__':
