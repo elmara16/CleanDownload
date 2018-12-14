@@ -233,6 +233,28 @@ def work_with_shows(folder, files):
             except:
                 pass            
 
+def sort_shows(show_folder):
+    shows = Path(show_folder)
+    for x, y, z in os.walk(shows, topdown=False):
+        path_x = Path(x)
+        if re.match(r'$Season [0-9]$', path_x.name): #skip already sorted shows
+            continue
+        elif path_x.parent == shows: #ignore the very first folder
+            work_with_shows(x, z)
+            print("sorted " + x)
+            continue
+        else:
+            clean_out_of_subdirs(x, z, path_x.parent)
+        #Go through all the subdirectories if their name isn't season something and put it in the main folder
+            
+
+def clean_out_of_subdirs(dirname, files, show_folder):
+    for f in files:
+        old_path = os.path.join(dirname, f)
+        new_path = os.path.join(show_folder, f)
+        shutil.move(old_path, new_path)
+
+
 def moveFoldersToSeriesorMovies(filepath):
     dirname = filepath/'None'
     goToS = filepath/'Series'
@@ -302,7 +324,7 @@ def remove_empyfiles(directories):
             os.rmdir(z)   
 
 
-def search(foldername):
+def main(foldername):
     filepath = Path(foldername)
     
     driverFolders(filepath)
@@ -310,9 +332,9 @@ def search(foldername):
     moveFoldersToTypes(filepath) 
     moveFoldersToSeriesorMovies(filepath)
     moveFilesToSeriesorMovies(filepath)
+    sort_shows('downloads/series')
 
 
-print(search('downloads'))
 #Búa til fall til þess að lesa, nota regex til að gera það
-#if __name__ == '__main__':
-#    main('downloads')
+if __name__ == '__main__':
+    main('downloads')
