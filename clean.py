@@ -44,7 +44,7 @@ def regexclean(line):
     line5 = re.search('(.*?)(robin williams kuth$|axxo$|direcors cut$|el rey de la habana$|[\{\(\[]?[0-9]{4}).*', line) #remove more trash with seeders names or actors etc.
     if line5:
         line = line5.group(1)
-    if ';' in line:
+    if ';' in line: 
         line = line.split(';')
         line = line[1]
         line = "".join(line)
@@ -123,7 +123,7 @@ def driverFilesOnly(filepath,typer):
                 done = True
         Rex = regexclean(x).title()
         dirName = filepath/Rex
-        dirFile = "downloads\\" + typer + x # typer is to know where is should go, just downloads folder or series, movie
+        dirFile = "downloads\\" + typer + x # typer is to know where is should go, downloads folder or series, movie
         createAndMoveFile(dirFile,dirName)  # if folder dirname dose not exists create new one. If there is none this will create folder for file
    
 def moveFoldersToTypes(filepath):
@@ -147,8 +147,6 @@ def moveFoldersToTypes(filepath):
         if Rex.title() != 'Series' and Rex.title() != 'Movie' and Rex.title() !='None': # So we dont and Series folder to Movie folder and None to Series etc..
             if not os.path.exists(filepath/seriesOrMovies): # if type of folder dosen't exists create one
                 Path.mkdir(filepath/seriesOrMovies)
-            else:    
-                pass
             try:
                 if seriesOrMovies == 'Series': # if type from data is Series move folder to series folder
                     moveFiles(x, filepath/seriesOrMovies) 
@@ -276,7 +274,7 @@ def moveFilesToSeriesorMovies(filepath):
     dirname = filepath/'None'
     goToS = filepath/'Series'
     goToM = filepath/'Movie'
-    directories = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 2]
+    directories = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 2] # get first folder that appear inside download folder
   
     for folder in directories:
         folder2 = os.listdir(folder)
