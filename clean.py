@@ -2,7 +2,6 @@
 import os
 from pathlib import Path
 import re
-import fnmatch
 import shutil
 from itertools import cycle
 import urllib
@@ -164,36 +163,37 @@ def moveFoldersToTypes(filepath):
 
 def work_with_shows(folder, files):
     #print(files)
-    for i in files:        
+    for i in files: 
+        #current path to the movie       
         current_path = folder/i
-
+        #replace . with spaces to get rid of confusion in the filename
         filename = i.replace('.', ' ').replace('[', ' ')
+        #Check if regex matches (see top of the file)
         patt1 = re.search(season1, filename)
         patt2 = re.search(season2, filename)
         patt3 = re.search(season3, filename)
         patt4 = re.search(season4, filename)
-        if patt1:
+        if patt1: #if it's S01E01
             match1 = patt1.group()
             season = match1.replace(match1, 'Season ')
             season_output = season + str(int(match1[1:]))
-        elif patt2:
+        elif patt2: #if it's season xx
             match2 = patt2.group()
             season_output = match2
-        elif patt3:
+        elif patt3: #if it's 01x01 first is season and the other is episode
             match3 = patt3.group().strip()
             season = match3.replace(match3, 'Season ')
             season_output = season + str(int(match3.split('x')[0]))
-            #print(hello)
-        elif patt4:
+            
+        elif patt4: #if it's either 3 or 4 letters
             match4 = patt4.group().strip()
             season = match4.replace(match4, 'Season ')
-            #print('im here')
             if len(match4) == 4:
                 season_output = season + str(int(match4[0:2]))
             else:
                 season_output = season + match4[0]
             
-        else:
+        else: #if it doesn't match any pattern its not known which season it is
             season_output = 'Unknown'
         #Create a new path to the show
         path_to_show = folder/season_output/i
@@ -225,9 +225,9 @@ def sort_shows(show_folder):
             else:
                 clean_out_of_subdirs(path_x, z, path) #removes everything from subdirs
     
-        
+        #Get eveeything from the directory
         files = listdir(path)
-        print(files)
+        #sort the shows
         work_with_shows(path, files)
         
 
