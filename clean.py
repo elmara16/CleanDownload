@@ -52,7 +52,6 @@ def regexclean(line):
     line = line.replace('-', ' ')
     line = re.sub("' ", '',line)
     line = line.replace("_", ' ')
-    line = line.replace("", '')
     line = re.sub(r'\([^()]*\)', '', line)
     line = re.sub(' +',' ',line)
     line = line.strip()
@@ -325,22 +324,18 @@ def remove_empyfiles(directories):
             print('deleted folder', z)
             os.rmdir(z)   
 
-
 def main(foldername):
     filepath = Path(foldername)
-    
     driverFolders(filepath,1)
     driverFilesOnly(filepath, '') 
     moveFoldersToTypes(filepath) 
     moveFoldersToSeriesorMovies(filepath)
     moveFilesToSeriesorMovies(filepath)
-    
-
     driverFolders(filepath/'Series',2)
     driverFilesOnly(filepath/'Series', 'Series\\')
     driverFolders(filepath/'Movie',2)
     driverFilesOnly(filepath/'Movie', 'Movie\\')
-    sort_shows('downloads/series')
+    #sort_shows('downloads/Series')
 #Búa til fall til þess að lesa, nota regex til að gera það
 if __name__ == '__main__':
     main('downloads')
