@@ -73,17 +73,17 @@ def moveFiles(pathTocurrentFile, pathToNewDestination):
     shutil.move(pathTocurrentFile, pathToNewDestination)
 
 #working with only folder þ.e paths
-def driverFolders(filepath):
+def driverFolders(filepath, num):
     count = 0
     count2 = 0
     done = False
-    directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == 1]
+    directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == num]
     count2 = directories.count(directories[-1])
     licycle = cycle(directories)
     needUpdate = False
     while(done == False):
         if needUpdate == True:
-            directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == 1]
+            directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == num]
             count2 = directories.count(directories[-1])
             licycle = cycle(directories)
             needUpdate = False
@@ -107,7 +107,7 @@ def driverFolders(filepath):
             pass
 
 #working on files after folders have been workt on     
-def driverFilesOnly(filepath):
+def driverFilesOnly(filepath,typer):
     onlyfiles = [f for f in listdir(filepath) if isfile(join(filepath, f))]
     count = 0
     count2 = 0
@@ -129,7 +129,7 @@ def driverFilesOnly(filepath):
                 done = True
         Rex = regexclean(x).title()
         dirName = filepath/Rex
-        dirFile = "downloads\\" + x
+        dirFile = "downloads\\" + typer + x
 
         if not os.path.exists(dirName):
             Path.mkdir(dirName)
@@ -140,7 +140,9 @@ def driverFilesOnly(filepath):
             moveFiles(dirFile, filepath/Rex)
             print("Moved ", dirFile)
         except:
-            pass
+            pass    
+
+      
 
 def moveFoldersToTypes(filepath):
     count = 0
@@ -271,7 +273,7 @@ def moveFoldersToSeriesorMovies(filepath):
     for z in directories2:
         newdir = z.split('\\')[-1].title().strip().lower()
         newdir = re.sub('1080p','', newdir)
-        sendToSeries = re.search('[0-9][0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|Series', newdir)
+        sendToSeries = re.search('[0-9][0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|series', newdir)
         if sendToSeries != None:
             try:
                 moveFiles(z, goToS)
@@ -301,7 +303,7 @@ def moveFilesToSeriesorMovies(filepath):
             m = m.replace('-', ' ' )
             m = m.replace('_', ' ')
             m = [int(s) for s in m.split() if s.isdigit()]
-            m = [g for g in m if len(str(g)) > 4]
+            m = [g for g in m if len(str(g)) > 4 and g > 1500]
             sendToSeries = re.search('e[0-9]{2}|[0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|Series', y)
             if sendToSeries != None:
                 try:
@@ -327,14 +329,18 @@ def remove_empyfiles(directories):
 def main(foldername):
     filepath = Path(foldername)
     
-    driverFolders(filepath)
-    driverFilesOnly(filepath) 
+    driverFolders(filepath,1)
+    driverFilesOnly(filepath, '') 
     moveFoldersToTypes(filepath) 
     moveFoldersToSeriesorMovies(filepath)
     moveFilesToSeriesorMovies(filepath)
+    
+
+    driverFolders(filepath/'Series',2)
+    driverFilesOnly(filepath/'Series', 'Series\\')
+    driverFolders(filepath/'Movie',2)
+    driverFilesOnly(filepath/'Movie', 'Movie\\')
     sort_shows('downloads/series')
-
-
 #Búa til fall til þess að lesa, nota regex til að gera það
 if __name__ == '__main__':
     main('downloads')
