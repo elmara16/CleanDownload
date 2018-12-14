@@ -76,6 +76,15 @@ def driverFolders(filepath, num):
     count = 0
     count2 = 0
     done = False
+    for x in listdir(filepath):
+        newdir = Path(x).name.title().strip()
+        match = re.match("Season [0-9]?[0-9]", newdir)
+        if match:
+            matc = match.group()
+            path = Path(filepath)/matc
+            files = listdir(path)
+            #print(files)
+            clean_out_of_subdirs(path, files, filepath)
     directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == num]
     count2 = directories.count(directories[-1])
     licycle = cycle(directories)
@@ -338,15 +347,15 @@ def remove_empyfiles(directories):
 
 def main(foldername):
     filepath = Path(foldername)
-    #driverFolders(filepath,1)
-    #driverFilesOnly(filepath, '') 
+    driverFolders(filepath,1)
+    driverFilesOnly(filepath, '') 
     moveFoldersToTypes(filepath) 
     moveFoldersToSeriesorMovies(filepath)
-    #moveFilesToSeriesorMovies(filepath)
-    #driverFolders(filepath/'Series',2)
-    #driverFilesOnly(filepath/'Series', 'Series\\')
-    #driverFolders(filepath/'Movie',2)
-    #driverFilesOnly(filepath/'Movie', 'Movie\\')
+    moveFilesToSeriesorMovies(filepath)
+    driverFolders(filepath/'Series',2)
+    driverFilesOnly(filepath/'Series', 'Series\\')
+    driverFolders(filepath/'Movie',2)
+    driverFilesOnly(filepath/'Movie', 'Movie\\')
     #sort_shows('downloads/Series')
 
 if __name__ == '__main__':
