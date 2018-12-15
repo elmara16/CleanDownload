@@ -15,9 +15,9 @@ season2 = re.compile('(S|s)eason [0-9]?[0-9]')
 season3 = re.compile(' ?[0-9]?[0-9]x[0-9][0-9]')
 season4 = re.compile(' ?[0-9]?[0-9] ?[0-9][0-9] ')
 
-#Tears up folders and files so we can test the on database
+#Tears up folders and files so we can test them on database
 def regexclean(line):
-    line = line.split('\\')[-1].title().strip() # remove everything befor last \\ and last \\
+    line = line.split('\\')[-1].title().strip() # remove everything before last \\ and also last \\
     line = re.sub(r'\[[^()]*\]', '', line)  # remove everything inside []
     line = re.sub(r'\([^()]*\)', '', line) # remove everything inside ()
     line = re.sub(r'\{[^()]*\}', '', line) # remove everything inside {}
@@ -72,8 +72,8 @@ def moveFiles(pathTocurrentFile, pathToNewDestination):
 
 #Working with only paths, num is for if we do need one \\ when it is in download or two \\ in series or movie
 def driverFolders(filepath, num):
-    count = 0 #default settings
-    count2 = 0 #default settings
+    count = 0 #default settings how many times the last folder has appear in currend stat in loop
+    count2 = 0 #default settings how many times it appears
     done = False
     for x in listdir(filepath):
         newdir = Path(x).name.title().strip()
@@ -83,30 +83,30 @@ def driverFolders(filepath, num):
             path = Path(filepath)/matc
             files = listdir(path)
             clean_out_of_subdirs(path, files, filepath)
-    directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == num] ## diectories that apear when filpeath is opened
+    directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == num] ## diectories that appear when filpeath is opened
     count2 = directories.count(directories[-1]) # how many times last word appears in directories
     licycle = cycle(directories) # cycle endless throw driectiories
     while(done == False): # runs until the last name of directories has appeard as many times as it is in directories
-        x = next(licycle) # next index
+        x = next(licycle) # next index (path)
         if x == directories[-1]: 
             count += 1
             if count == count2:
                 done = True
-        Rex = regexclean(x).title()  # cleans up path 
-        dirName = filepath/Rex #path
-        createAndMoveFile(x,dirName)
+        Rex = regexclean(x).title()  # cleans up path for database and to get folders with same names together. how.i.met.your.mother.s03e02 and how.i.met.yourmother. Will go to clean folder how i met your mother 
+        NewDirName = filepath/Rex # new path
+        createAndMoveFile(x,NewDirName) # x is the old folder path
 
-def createAndMoveFile(x, dirName):
-    if not os.path.exists(dirName): # if path does not exists create new one. 
-            Path.mkdir(dirName) #If x was how.met.your.mother. this will create folder how i met your mother
+def createAndMoveFile(oldPath, NewDirName):
+    if not os.path.exists(NewDirName): # If path does not exists create new one. 
+            Path.mkdir(NewDirName) # If oldPath was how.met.your.mother. this will create new folder how i met your mother
     else:    
         pass
     try:
-        moveFiles(x, dirName)  # moves folder to new path 
+        moveFiles(oldPath, NewDirName)  # moves folder or file to new path 
     except:
         pass
 
-#Working on files after folders have been workt on     
+#Working on files after folders have been workt on, aloot of same logic as in driverfolderonly     
 def driverFilesOnly(filepath,typer):
     onlyfiles = [f for f in listdir(filepath) if isfile(join(filepath, f))] # only files in filepath
     count = 0
@@ -121,15 +121,15 @@ def driverFilesOnly(filepath,typer):
             if count == count2:
                 done = True
         Rex = regexclean(x).title()
-        dirName = filepath/Rex
-        dirFile = "downloads\\" + typer + x # typer is to know where is should go, downloads folder or series, movie
-        createAndMoveFile(dirFile,dirName)  # if folder dirname dose not exists create new one. If there is none this will create folder for file
+        NewPath = filepath/Rex
+        oldPath = "downloads\\" + typer + x # typer is to know where it was, downloads, series or movie folder
+        createAndMoveFile(oldPath,NewPath)
    
 def moveFoldersToTypes(filepath):
     count = 0
     count2 = 0
     done = False
-    directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == 1] 
+    directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == 1] ## diectories that appear when download file is opened
     count2 = directories.count(directories[-1])
     licycle = cycle(directories)
     while(done == False):
@@ -139,11 +139,11 @@ def moveFoldersToTypes(filepath):
             if count == count2:
                 done = True
         Rex = x.replace('downloads\\','') 
-        if 'season' not in Rex and 'Season' not in Rex: # So database dosent say season folder is movie or series 
+        if 'season' not in Rex and 'Season' not in Rex: # So database dosent say season folder is movie or series instead it goes to None
             seriesOrMovies = gettype(Rex).title()
         else:
             seriesOrMovies = 'None'
-        if Rex.title() != 'Series' and Rex.title() != 'Movie' and Rex.title() !='None': # So we dont and Series folder to Movie folder and None to Series etc..
+        if Rex.title() != 'Series' and Rex.title() != 'Movie' and Rex.title() !='None': # So we do not send Series folder to Movie folder and None to Series for example
             if not os.path.exists(filepath/seriesOrMovies): # if type of folder dosen't exists create one
                 Path.mkdir(filepath/seriesOrMovies)
             try:
@@ -236,12 +236,12 @@ def clean_out_of_subdirs(dirname, files, show_folder):
         new_path = show_folder/f
         moveFiles(old_path, new_path)
 
-
-def moveFoldersToSeriesorMovies(filepath):
-    dirname = filepath/'None'
-    goToS = filepath/'Series'
-    goToM = filepath/'Movie'
-    directories2 = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 3] # get all folder inside download filepath
+# Move folders that database could not move to series or movie
+def moveFoldersFromNoneToSeriesorMovies(filepath):
+    dirname = filepath/'None' # oldPath
+    goToS = filepath/'Series' # move to series
+    goToM = filepath/'Movie' # move to movie
+    directories2 = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 3] # get all folders that appear when you open folders inside none folder. (None folder are ther parent parent)
     for x in listdir(filepath):
         newdir = Path(x).name.title().strip()
         match = re.match("Season [0-9]?[0-9]", newdir)
@@ -253,7 +253,7 @@ def moveFoldersToSeriesorMovies(filepath):
     for folder in directories2:
         newdir = folder.title().strip()
         newdir = re.sub('1080p','', newdir) # take out 1080p it confuses sendToMovie search
-        sendToSeries = re.search('[0-9][0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|series', newdir) # if in folder is one of this move it to series
+        sendToSeries = re.search('[0-9][0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|series', newdir) # if in folder has one of this move it to series
         if sendToSeries != None:
             try:
                 moveFiles(folder, goToS)
@@ -266,35 +266,36 @@ def moveFoldersToSeriesorMovies(filepath):
             except:
                 pass
     directories = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 2] # Update to see what files are empty
-    remove_empyfiles(directories)
-            
-def moveFilesToSeriesorMovies(filepath):
+    remove_empyfiles(directories) # remove empy files
+
+# Move files that database could not move to series or movie     
+def moveFilesFromNoneToSeriesorMovies(filepath):
     dirname = filepath/'None'
     goToS = filepath/'Series'
     goToM = filepath/'Movie'
-    directories = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 2] # get first folder that appear inside download folder
+    directories = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 2] # get child folders of none folder
   
     for folder in directories:
-        folder2 = os.listdir(folder)
+        folder2 = os.listdir(folder) # get all files that are children of folders in directories
         for file2 in folder2:
-            OldDirname = folder +'\\'+ file2 
+            oldDirname = folder +'\\'+ file2 # old path
             file2 = re.sub('1080p','', file2).lower()
             fix = file2.replace('.', ' ') 
             fix = fix.replace('-', ' ' )
             fix = fix.replace('_', ' ') # taking out confusing characters
             fix = [int(s) for s in fix.split() if s.isdigit()]
             fix = [g for g in fix if len(str(g)) > 4 and g > 1500] # ignore numbers size > 4 and number less than 1500, movies are more likly to be made later than 1500
-            sendToSeries = re.search('e[0-9]{2}|[0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|Series', file2)
-            if sendToSeries != None:
+            sendToSeries = re.search('e[0-9]{2}|[0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|Series', file2) # if file has any of thease move to series
+            if sendToSeries != None: 
                 try:
-                    moveFiles(OldDirname, goToS)
+                    moveFiles(oldDirname, goToS)
                 except:
                     pass
             if len(fix) == 0: # if size is null, than it must be year
                 sendToMovie = re.search('[0-9]{4}',file2)
                 if sendToMovie != None:
                     try:
-                        moveFiles(OldDirname,goToM)
+                        moveFiles(oldDirname,goToM)
                     except:
                         pass
     remove_empyfiles(directories)  
@@ -302,7 +303,7 @@ def moveFilesToSeriesorMovies(filepath):
 #Removes folder if it is empty
 def remove_empyfiles(directories):
     for folder in directories:
-        if not os.listdir(folder):
+        if not os.listdir(folder): 
             os.rmdir(folder)   
 
 #Move files and folder to None if it hasen't been moved yet from folder
@@ -322,8 +323,8 @@ def main(foldername):
     driverFolders(filepath,1)
     driverFilesOnly(filepath, '')
     moveFoldersToTypes(filepath) 
-    moveFoldersToSeriesorMovies(filepath)
-    moveFilesToSeriesorMovies(filepath)
+    moveFoldersFromNoneToSeriesorMovies(filepath)
+    moveFilesFromNoneToSeriesorMovies(filepath)
     driverFolders(filepath/'Series',2)
     driverFilesOnly(filepath/'Series', 'Series\\')
     driverFolders(filepath/'Movie',2)
