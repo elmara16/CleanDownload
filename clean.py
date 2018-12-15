@@ -75,14 +75,14 @@ def driverFolders(filepath, num):
     count = 0 #default settings
     count2 = 0 #default settings
     done = False
-    for x in listdir(filepath):
+    for x in listdir(filepath): #check all the subdirs
         newdir = Path(x).name.title().strip()
         match = re.match("Season [0-9]?[0-9]", newdir)
-        if match:
+        if match: #if there is a season in the given folder
             matc = match.group()
             path = Path(filepath)/matc
             files = listdir(path)
-            clean_out_of_subdirs(path, files, filepath)
+            clean_out_of_subdirs(path, files, filepath) #clear everything out of the folder
     directories = [x[0] for x in os.walk(filepath) if x[0].count('\\') == num] ## diectories that apear when filpeath is opened
     count2 = directories.count(directories[-1]) # how many times last word appears in directories
     licycle = cycle(directories) # cycle endless throw driectiories
@@ -209,8 +209,8 @@ def work_with_shows(folder, files):
             except:
                 pass            
 
-def sort_shows(show_folder):
-    shows = Path(show_folder)
+def sort_shows(shows):
+    #shows = Path(show_folder)
     for i in listdir(shows):
         path = shows/i
         for x, y, z in os.walk(path):
@@ -242,14 +242,14 @@ def moveFoldersToSeriesorMovies(filepath):
     goToS = filepath/'Series'
     goToM = filepath/'Movie'
     directories2 = [x[0] for x in os.walk(dirname) if x[0].count('\\') == 3] # get all folder inside download filepath
-    for x in listdir(filepath):
+    for x in listdir(filepath): #go throguht all the files
         newdir = Path(x).name.title().strip()
-        match = re.match("Season [0-9]?[0-9]", newdir)
-        if match:
+        match = re.match("Season [0-9]?[0-9]", newdir) #check if season X is name of folder
+        if match: 
             matc = match.group()
             path = Path(filepath)/matc
             files = listdir(path)
-            clean_out_of_subdirs(path, files, filepath)
+            clean_out_of_subdirs(path, files, filepath) #clean everything out of the folder
     for folder in directories2:
         newdir = folder.title().strip()
         newdir = re.sub('1080p','', newdir) # take out 1080p it confuses sendToMovie search
@@ -328,7 +328,7 @@ def main(foldername):
     driverFilesOnly(filepath/'Series', 'Series\\')
     driverFolders(filepath/'Movie',2)
     driverFilesOnly(filepath/'Movie', 'Movie\\')
-    sort_shows('downloads/Series')
+    sort_shows(filepath/'Series')
     restOfFilesToNone(filepath)
 
 if __name__ == '__main__':
