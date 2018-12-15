@@ -253,7 +253,7 @@ def moveFoldersFromNoneToSeriesorMovies(filepath):
     for folder in directories2:
         newdir = folder.title().strip()
         newdir = re.sub('1080p','', newdir) # take out 1080p it confuses sendToMovie search
-        sendToSeries = re.search('[0-9][0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|series', newdir) # if in folder has one of this move it to series
+        sendToSeries = re.search('[0-9][0-9]-[0-9]|season|episodes|s[0-9]|s[0-9]{2}e[0-9]{2}|series', newdir) # if folder has one of this move it to series
         if sendToSeries != None:
             try:
                 moveFiles(folder, goToS)
